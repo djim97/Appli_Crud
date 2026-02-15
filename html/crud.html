@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Projets - CRUD</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion de Projets</h1>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab active" data-tab="typeprojet">Types Projet</button>
+            <button class="tab" data-tab="agent">Agents</button>
+            <button class="tab" data-tab="projet">Projets</button>
+            <button class="tab" data-tab="travailler">Affectations</button>
+        </nav>
+
+        <!-- Status Message -->
+        <div id="message" class="message hidden"></div>
+
+        <!-- ==================== TYPEPROJET TAB ==================== -->
+        <div class="tab-content active" id="tab-typeprojet">
+            <div class="form-section">
+                <h2 id="typeprojet-form-title">Ajouter un Type de Projet</h2>
+                <form id="typeprojet-form">
+                    <input type="hidden" id="typeprojet-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="typeprojet-libelletype">Libellé *</label>
+                            <input type="text" id="typeprojet-libelletype" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="typeprojet-descriptiont">Description *</label>
+                            <input type="text" id="typeprojet-descriptiont" required>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" id="typeprojet-submit-btn">Ajouter</button>
+                        <button type="button" id="typeprojet-cancel-btn" class="btn-cancel hidden">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h2>Liste des Types de Projet</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Libellé</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="typeprojet-tbody"></tbody>
+                    </table>
+                </div>
+                <p id="typeprojet-no-data" class="no-data hidden">Aucun type de projet trouvé.</p>
+            </div>
+        </div>
+
+        <!-- ==================== AGENT TAB ==================== -->
+        <div class="tab-content" id="tab-agent">
+            <div class="form-section">
+                <h2 id="agent-form-title">Ajouter un Agent</h2>
+                <form id="agent-form">
+                    <input type="hidden" id="agent-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="agent-nom">Nom *</label>
+                            <input type="text" id="agent-nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent-prenom">Prénom *</label>
+                            <input type="text" id="agent-prenom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent-fonction">Fonction *</label>
+                            <input type="text" id="agent-fonction" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent-email">Email *</label>
+                            <input type="email" id="agent-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent-telephone">Téléphone *</label>
+                            <input type="number" id="agent-telephone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent-date_embauche">Date d'embauche *</label>
+                            <input type="text" id="agent-date_embauche" placeholder="jj/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent-salaire">Salaire *</label>
+                            <input type="number" id="agent-salaire" required>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" id="agent-submit-btn">Ajouter</button>
+                        <button type="button" id="agent-cancel-btn" class="btn-cancel hidden">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h2>Liste des Agents</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Fonction</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Date Embauche</th>
+                                <th>Salaire</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agent-tbody"></tbody>
+                    </table>
+                </div>
+                <p id="agent-no-data" class="no-data hidden">Aucun agent trouvé.</p>
+            </div>
+        </div>
+
+        <!-- ==================== PROJET TAB ==================== -->
+        <div class="tab-content" id="tab-projet">
+            <div class="form-section">
+                <h2 id="projet-form-title">Ajouter un Projet</h2>
+                <form id="projet-form">
+                    <input type="hidden" id="projet-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="projet-nomp">Nom du Projet *</label>
+                            <input type="text" id="projet-nomp" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="projet-description">Description *</label>
+                            <input type="text" id="projet-description" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="projet-dated">Date Début *</label>
+                            <input type="text" id="projet-dated" placeholder="jj/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="projet-datf">Date Fin *</label>
+                            <input type="text" id="projet-datf" placeholder="jj/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="projet-budget">Budget *</label>
+                            <input type="number" id="projet-budget" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="projet-statut">Statut *</label>
+                            <select id="projet-statut" required>
+                                <option value="">-- Choisir --</option>
+                                <option value="En cours">En cours</option>
+                                <option value="Terminé">Terminé</option>
+                                <option value="En attente">En attente</option>
+                                <option value="Annulé">Annulé</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="projet-idtype">Type de Projet *</label>
+                            <select id="projet-idtype" required>
+                                <option value="">-- Choisir --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" id="projet-submit-btn">Ajouter</button>
+                        <button type="button" id="projet-cancel-btn" class="btn-cancel hidden">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h2>Liste des Projets</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Description</th>
+                                <th>Date Début</th>
+                                <th>Date Fin</th>
+                                <th>Budget</th>
+                                <th>Statut</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projet-tbody"></tbody>
+                    </table>
+                </div>
+                <p id="projet-no-data" class="no-data hidden">Aucun projet trouvé.</p>
+            </div>
+        </div>
+
+        <!-- ==================== TRAVAILLER TAB ==================== -->
+        <div class="tab-content" id="tab-travailler">
+            <div class="form-section">
+                <h2 id="travailler-form-title">Ajouter une Affectation</h2>
+                <form id="travailler-form">
+                    <input type="hidden" id="travailler-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="travailler-ida">Agent *</label>
+                            <select id="travailler-ida" required>
+                                <option value="">-- Choisir un agent --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="travailler-idp">Projet *</label>
+                            <select id="travailler-idp" required>
+                                <option value="">-- Choisir un projet --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="travailler-role">Rôle *</label>
+                            <input type="text" id="travailler-role" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="travailler-dateaff">Date d'affectation *</label>
+                            <input type="text" id="travailler-dateaff" placeholder="jj/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}" required>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" id="travailler-submit-btn">Ajouter</button>
+                        <button type="button" id="travailler-cancel-btn" class="btn-cancel hidden">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h2>Liste des Affectations</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Projet</th>
+                                <th>Rôle</th>
+                                <th>Date Affectation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="travailler-tbody"></tbody>
+                    </table>
+                </div>
+                <p id="travailler-no-data" class="no-data hidden">Aucune affectation trouvée.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>
