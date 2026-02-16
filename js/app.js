@@ -7,6 +7,13 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+        if (tab.dataset.tab === 'projet') {
+            loadTypeOptions();
+        } else if (tab.dataset.tab === 'travailler') {
+            loadAgentOptions();
+            loadProjetOptions();
+        }
     });
 });
 
@@ -127,6 +134,7 @@ async function deleteAgent(id) {
         if (result.success) {
             showMessage('Agent supprimé avec succès', 'success');
             fetchAgents();
+            loadAgentOptions();
         } else {
             showMessage(result.error || 'Erreur de suppression', 'error');
         }
@@ -153,6 +161,7 @@ document.getElementById('agent-form').addEventListener('submit', async (e) => {
             showMessage(id ? 'Agent mis à jour' : 'Agent ajouté', 'success');
             resetAgentForm();
             fetchAgents();
+            loadAgentOptions();
         } else {
             showMessage(result.error || 'Erreur', 'error');
         }
@@ -241,6 +250,7 @@ async function deleteTypeProjet(id) {
         if (result.success) {
             showMessage('Type de projet supprimé', 'success');
             fetchTypesProjets();
+            loadTypeOptions();
         } else {
             showMessage(result.error || 'Erreur de suppression', 'error');
         }
@@ -266,6 +276,7 @@ document.getElementById('typeprojet-form').addEventListener('submit', async (e) 
             showMessage(id ? 'Type mis à jour' : 'Type ajouté', 'success');
             resetTypeProjetForm();
             fetchTypesProjets();
+            loadTypeOptions();
         } else {
             showMessage(result.error || 'Erreur', 'error');
         }
@@ -369,6 +380,7 @@ async function deleteProjet(id) {
         if (result.success) {
             showMessage('Projet supprimé', 'success');
             fetchProjets();
+            loadProjetOptions();
         } else {
             showMessage(result.error || 'Erreur de suppression', 'error');
         }
@@ -396,6 +408,7 @@ document.getElementById('projet-form').addEventListener('submit', async (e) => {
             showMessage(id ? 'Projet mis à jour' : 'Projet ajouté', 'success');
             resetProjetForm();
             fetchProjets();
+            loadProjetOptions();
         } else {
             showMessage(result.error || 'Erreur', 'error');
         }

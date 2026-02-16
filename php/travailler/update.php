@@ -28,6 +28,24 @@ if ($role === '' || $dateaff === '' || $ida === '' || $idp === '') {
     exit;
 }
 
+if (!isValidDate($dateaff)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid assignment date format (expected yyyy-mm-dd)']);
+    exit;
+}
+
+if (!recordExists($pdo, 'agent', 'idA', $ida)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Selected agent does not exist']);
+    exit;
+}
+
+if (!recordExists($pdo, 'projet', 'idp', $idp)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Selected project does not exist']);
+    exit;
+}
+
 try {
     $stmt = $pdo->prepare('UPDATE travailler SET role = :role, dateaff = :dateaff, ida = :ida, idp = :idp WHERE numt = :numt');
     $stmt->execute([
@@ -46,5 +64,5 @@ try {
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update assignment: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to update assignment']);
 }
