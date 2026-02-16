@@ -46,7 +46,15 @@ function toDbDate(dateStr) {
 // ==================== GENERIC HELPERS ====================
 async function fetchJSON(url, options) {
     const res = await fetch(url, options);
-    return res.json();
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        // InfinityFree bot protection returned HTML instead of JSON — retry once
+        console.warn('Non-JSON response, retrying:', url);
+        const retry = await fetch(url, options);
+        return retry.json();
+    }
 }
 
 function postJSON(url, data) {
