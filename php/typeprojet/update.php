@@ -42,5 +42,5 @@ try {
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update project type: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to update project type']);
 }

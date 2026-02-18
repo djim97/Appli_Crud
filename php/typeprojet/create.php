@@ -29,5 +29,5 @@ try {
     echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create project type: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to create project type']);
 }

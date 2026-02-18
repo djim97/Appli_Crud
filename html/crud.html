@@ -12,7 +12,8 @@
 
         <!-- Navigation Tabs -->
         <nav class="tabs">
-            <button class="tab active" data-tab="typeprojet">Types Projet</button>
+            <button class="tab active" data-tab="dashboard">Dashboard</button>
+            <button class="tab" data-tab="typeprojet">Types Projet</button>
             <button class="tab" data-tab="agent">Agents</button>
             <button class="tab" data-tab="projet">Projets</button>
             <button class="tab" data-tab="travailler">Affectations</button>
@@ -20,9 +21,55 @@
 
         <!-- Status Message -->
         <div id="message" class="message hidden"></div>
+        <!-- ==================== DASHBOARD TAB ==================== -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="dashboard-container">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-projets">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-projets">0</span>
+                            <span class="stat-label">Projets</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-agents">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-agents">0</span>
+                            <span class="stat-label">Agents</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-budget">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-budget">0</span>
+                            <span class="stat-label">Budget Total</span>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Projets par Statut</h3>
+                        <div class="chart-content" id="chart-status">
+                            <div class="chart-bars" id="status-bars"></div>
+                            <div class="chart-legend" id="status-legend"></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Projets par Type</h3>
+                        <div class="chart-content" id="chart-type">
+                            <div class="chart-bars" id="type-bars"></div>
+                            <div class="chart-legend" id="type-legend"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- ==================== TYPEPROJET TAB ==================== -->
-        <div class="tab-content active" id="tab-typeprojet">
+        <div class="tab-content" id="tab-typeprojet">
             <div class="form-section">
                 <h2 id="typeprojet-form-title">Ajouter un Type de Projet</h2>
                 <form id="typeprojet-form">

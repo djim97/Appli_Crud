@@ -30,6 +30,18 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+if (!isValidDate($dateEmbauche)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid hire date format (expected yyyy-mm-dd)']);
+    exit;
+}
+
+if (!is_numeric($salaire) || (int)$salaire < 0) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Salary must be a positive number']);
+    exit;
+}
+
 try {
     $stmt = $pdo->prepare('INSERT INTO agent (nom, prenom, fonction, email, telephone, date_embauche, salaire) VALUES (:nom, :prenom, :fonction, :email, :telephone, :date_embauche, :salaire)');
     $stmt->execute([
@@ -45,5 +57,5 @@ try {
     echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create agent: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to create agent']);
 }

@@ -7,6 +7,15 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+        if (tab.dataset.tab === 'dashboard') {
+            fetchDashboard();
+        } else if (tab.dataset.tab === 'projet') {
+            loadTypeOptions();
+        } else if (tab.dataset.tab === 'travailler') {
+            loadAgentOptions();
+            loadProjetOptions();
+        }
     });
 });
 
@@ -39,7 +48,15 @@ function toDbDate(dateStr) {
 // ==================== GENERIC HELPERS ====================
 async function fetchJSON(url, options) {
     const res = await fetch(url, options);
-    return res.json();
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        // InfinityFree bot protection returned HTML instead of JSON — retry once
+        console.warn('Non-JSON response, retrying:', url);
+        const retry = await fetch(url, options);
+        return retry.json();
+    }
 }
 
 function postJSON(url, data) {
@@ -47,6 +64,106 @@ function postJSON(url, data) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
+    });
+}
+
+// ==================== DASHBOARD ====================
+async function fetchDashboard() {
+    try {
+        const stats = await fetchJSON(`${API}/dashboard/stats.php`);
+        renderDashboard(stats);
+    } catch (e) {
+        showMessage('Erreur de chargement du dashboard: ' + e.message, 'error');
+    }
+}
+
+function formatBudget(value) {
+    if (value >= 1000000) {
+        return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+        return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toLocaleString('fr-FR');
+}
+
+function renderDashboard(stats) {
+    // Update stat cards
+    document.getElementById('stat-total-projets').textContent = stats.totalProjets;
+    document.getElementById('stat-total-agents').textContent = stats.totalAgents;
+    document.getElementById('stat-total-budget').textContent = formatBudget(stats.totalBudget);
+    document.getElementById('stat-total-types').textContent = stats.totalTypes;
+
+    // Render status chart
+    renderStatusChart(stats.projetsByStatus);
+
+    // Render type chart
+    renderTypeChart(stats.projetsByType);
+}
+
+function getStatusBarClass(statut) {
+    const normalized = statut.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (normalized.includes('en-cours')) return 'bar-en-cours';
+    if (normalized.includes('termin')) return 'bar-termine';
+    if (normalized.includes('attente')) return 'bar-en-attente';
+    if (normalized.includes('annul')) return 'bar-annule';
+    return 'bar-default';
+}
+
+function renderStatusChart(data) {
+    const container = document.getElementById('status-bars');
+    container.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="chart-no-data">Aucun projet</p>';
+        return;
+    }
+
+    const maxCount = Math.max(...data.map(d => parseInt(d.count)));
+
+    data.forEach(item => {
+        const percentage = maxCount > 0 ? (parseInt(item.count) / maxCount) * 100 : 0;
+        const barClass = getStatusBarClass(item.statut);
+
+        const barItem = document.createElement('div');
+        barItem.className = 'chart-bar-item';
+        barItem.innerHTML = `
+            <span class="chart-bar-label">${item.statut}</span>
+            <div class="chart-bar-container">
+                <div class="chart-bar ${barClass}" style="width: ${Math.max(percentage, 10)}%">
+                    <span class="chart-bar-value">${item.count}</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(barItem);
+    });
+}
+
+function renderTypeChart(data) {
+    const container = document.getElementById('type-bars');
+    container.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="chart-no-data">Aucun type de projet</p>';
+        return;
+    }
+
+    const maxCount = Math.max(...data.map(d => parseInt(d.count)));
+
+    data.forEach((item, index) => {
+        const percentage = maxCount > 0 ? (parseInt(item.count) / maxCount) * 100 : 0;
+        const barClass = `bar-type-${index % 6}`;
+
+        const barItem = document.createElement('div');
+        barItem.className = 'chart-bar-item';
+        barItem.innerHTML = `
+            <span class="chart-bar-label">${item.libelletype || 'N/A'}</span>
+            <div class="chart-bar-container">
+                <div class="chart-bar ${barClass}" style="width: ${Math.max(percentage, 10)}%">
+                    <span class="chart-bar-value">${item.count}</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(barItem);
     });
 }
 
@@ -127,6 +244,7 @@ async function deleteAgent(id) {
         if (result.success) {
             showMessage('Agent supprimé avec succès', 'success');
             fetchAgents();
+            loadAgentOptions();
         } else {
             showMessage(result.error || 'Erreur de suppression', 'error');
         }
@@ -153,6 +271,7 @@ document.getElementById('agent-form').addEventListener('submit', async (e) => {
             showMessage(id ? 'Agent mis à jour' : 'Agent ajouté', 'success');
             resetAgentForm();
             fetchAgents();
+            loadAgentOptions();
         } else {
             showMessage(result.error || 'Erreur', 'error');
         }
@@ -241,6 +360,7 @@ async function deleteTypeProjet(id) {
         if (result.success) {
             showMessage('Type de projet supprimé', 'success');
             fetchTypesProjets();
+            loadTypeOptions();
         } else {
             showMessage(result.error || 'Erreur de suppression', 'error');
         }
@@ -266,6 +386,7 @@ document.getElementById('typeprojet-form').addEventListener('submit', async (e) 
             showMessage(id ? 'Type mis à jour' : 'Type ajouté', 'success');
             resetTypeProjetForm();
             fetchTypesProjets();
+            loadTypeOptions();
         } else {
             showMessage(result.error || 'Erreur', 'error');
         }
@@ -369,6 +490,7 @@ async function deleteProjet(id) {
         if (result.success) {
             showMessage('Projet supprimé', 'success');
             fetchProjets();
+            loadProjetOptions();
         } else {
             showMessage(result.error || 'Erreur de suppression', 'error');
         }
@@ -396,6 +518,7 @@ document.getElementById('projet-form').addEventListener('submit', async (e) => {
             showMessage(id ? 'Projet mis à jour' : 'Projet ajouté', 'success');
             resetProjetForm();
             fetchProjets();
+            loadProjetOptions();
         } else {
             showMessage(result.error || 'Erreur', 'error');
         }
@@ -563,6 +686,7 @@ document.getElementById('travailler-cancel-btn').addEventListener('click', reset
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
+    fetchDashboard();
     fetchAgents();
     fetchTypesProjets();
     fetchProjets();

@@ -37,6 +37,18 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+if (!isValidDate($dateEmbauche)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid hire date format (expected yyyy-mm-dd)']);
+    exit;
+}
+
+if (!is_numeric($salaire) || (int)$salaire < 0) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Salary must be a positive number']);
+    exit;
+}
+
 try {
     $stmt = $pdo->prepare('UPDATE agent SET nom = :nom, prenom = :prenom, fonction = :fonction, email = :email, telephone = :telephone, date_embauche = :date_embauche, salaire = :salaire WHERE idA = :idA');
     $stmt->execute([
@@ -58,5 +70,5 @@ try {
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update agent: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Failed to update agent']);
 }
