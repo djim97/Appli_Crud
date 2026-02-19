@@ -1,6 +1,6 @@
 :root {
-    --primary: #4a90d9;
-    --primary-hover: #357abd;
+    --primary: #8B4513;
+    --primary-hover: #6B3410;
     --danger: #e74c3c;
     --danger-hover: #c0392b;
     --success-bg: #d4edda;
@@ -12,7 +12,7 @@
     --text: #333333;
     --text-light: #666666;
     --border: #ddd;
-    --border-focus: #4a90d9;
+    --border-focus: #8B4513;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     --radius: 8px;
 }
@@ -334,7 +334,7 @@ tbody tr:hover {
 }
 
 .stat-projets .stat-icon {
-    background: rgba(74, 144, 217, 0.15);
+    background: rgba(139, 69, 19, 0.15);
 }
 
 .stat-agents .stat-icon {
@@ -442,12 +442,12 @@ tbody tr:hover {
 /* Status colors */
 .bar-en-cours { background: linear-gradient(90deg, #3498db, #2980b9); }
 .bar-termine { background: linear-gradient(90deg, #2ecc71, #27ae60); }
-.bar-en-attente { background: linear-gradient(90deg, #f39c12, #e67e22); }
-.bar-annule { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+.bar-en-attente { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+.bar-annule { background: linear-gradient(90deg, #8B4513, #6B3410); }
 .bar-default { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
 
 /* Type colors */
-.bar-type-0 { background: linear-gradient(90deg, #4a90d9, #357abd); }
+.bar-type-0 { background: linear-gradient(90deg, #8B4513, #6B3410); }
 .bar-type-1 { background: linear-gradient(90deg, #2ecc71, #27ae60); }
 .bar-type-2 { background: linear-gradient(90deg, #e74c3c, #c0392b); }
 .bar-type-3 { background: linear-gradient(90deg, #f39c12, #e67e22); }
@@ -459,6 +459,31 @@ tbody tr:hover {
     font-style: italic;
     text-align: center;
     padding: 40px 0;
+}
+
+.affectations-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.affectations-table th,
+.affectations-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.affectations-table th {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 0.9rem;
+    background-color: var(--bg);
+    border-bottom: 2px solid var(--primary);
+}
+
+.affectations-table tbody tr:hover {
+    background-color: var(--bg-hover, #f5f5f5);
 }
 
 /* ========== RESPONSIVE ========== */

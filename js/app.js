@@ -94,8 +94,8 @@ function renderDashboard(stats) {
     // Render status chart
     renderStatusChart(stats.projetsByStatus);
 
-    // Render type chart
-    renderTypeChart(stats.projetsByType);
+    // Render affectations list
+    renderAffectationsList(stats.affectationsList);
 }
 
 function getStatusBarClass(statut) {
@@ -136,33 +136,38 @@ function renderStatusChart(data) {
     });
 }
 
-function renderTypeChart(data) {
+function renderAffectationsList(data) {
     const container = document.getElementById('type-bars');
     container.innerHTML = '';
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="chart-no-data">Aucun type de projet</p>';
+        container.innerHTML = '<p class="chart-no-data">Aucune affectation</p>';
         return;
     }
 
-    const maxCount = Math.max(...data.map(d => parseInt(d.count)));
-
-    data.forEach((item, index) => {
-        const percentage = maxCount > 0 ? (parseInt(item.count) / maxCount) * 100 : 0;
-        const barClass = `bar-type-${index % 6}`;
-
-        const barItem = document.createElement('div');
-        barItem.className = 'chart-bar-item';
-        barItem.innerHTML = `
-            <span class="chart-bar-label">${item.libelletype || 'N/A'}</span>
-            <div class="chart-bar-container">
-                <div class="chart-bar ${barClass}" style="width: ${Math.max(percentage, 10)}%">
-                    <span class="chart-bar-value">${item.count}</span>
-                </div>
-            </div>
+    const table = document.createElement('table');
+    table.className = 'affectations-table';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Agent</th>
+                <th>Projet</th>
+                <th>R\u00f4le</th>
+            </tr>
+        </thead>
+    `;
+    const tbody = document.createElement('tbody');
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.nom} ${item.prenom}</td>
+            <td>${item.nomp}</td>
+            <td>${item.role || '-'}</td>
         `;
-        container.appendChild(barItem);
+        tbody.appendChild(row);
     });
+    table.appendChild(tbody);
+    container.appendChild(table);
 }
 
 // ==================== AGENT ====================

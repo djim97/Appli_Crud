@@ -11,15 +11,15 @@ try {
     $stmtStatus = $pdo->query('SELECT statut, COUNT(*) as count FROM projet GROUP BY statut ORDER BY count DESC');
     $projetsByStatus = $stmtStatus->fetchAll();
 
-    // Projects by type
-    $stmtType = $pdo->query('
-        SELECT t.libelletype, COUNT(p.idp) as count 
-        FROM typeprojet t 
-        LEFT JOIN projet p ON t.idtype = p.idtype 
-        GROUP BY t.idtype, t.libelletype 
-        ORDER BY count DESC
+    // Affectations (agent - projet)
+    $stmtAffectationsList = $pdo->query('
+        SELECT a.nom, a.prenom, p.nomp, tr.role
+        FROM travailler tr
+        JOIN agent a ON tr.ida = a.idA
+        JOIN projet p ON tr.idp = p.idp
+        ORDER BY a.nom, a.prenom
     ');
-    $projetsByType = $stmtType->fetchAll();
+    $affectationsList = $stmtAffectationsList->fetchAll();
 
     // Total budget
     $stmtBudget = $pdo->query('SELECT COALESCE(SUM(budget), 0) as total_budget FROM projet');
@@ -40,7 +40,7 @@ try {
     echo json_encode([
         'totalProjets' => (int)$totalProjets,
         'projetsByStatus' => $projetsByStatus,
-        'projetsByType' => $projetsByType,
+        'affectationsList' => $affectationsList,
         'totalBudget' => (float)$totalBudget,
         'totalAgents' => (int)$totalAgents,
         'totalTypes' => (int)$totalTypes,
