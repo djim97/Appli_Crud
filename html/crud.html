@@ -4,15 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion de Projets - CRUD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Gestion de Projets</h1>
+    <header class="app-header">
+        <div class="header-content">
+            <span class="header-accent">Application de</span>
+            <h1>Gestion de Projets</h1>
+        </div>
+    </header>
 
+    <div class="container">
         <!-- Navigation Tabs -->
         <nav class="tabs">
-            <button class="tab active" data-tab="typeprojet">Types Projet</button>
+            <button class="tab active" data-tab="dashboard">Dashboard</button>
+            <button class="tab" data-tab="typeprojet">Types Projet</button>
             <button class="tab" data-tab="agent">Agents</button>
             <button class="tab" data-tab="projet">Projets</button>
             <button class="tab" data-tab="travailler">Affectations</button>
@@ -20,9 +29,55 @@
 
         <!-- Status Message -->
         <div id="message" class="message hidden"></div>
+        <!-- ==================== DASHBOARD TAB ==================== -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="dashboard-container">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-projets">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-projets">0</span>
+                            <span class="stat-label">Projets</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-agents">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-agents">0</span>
+                            <span class="stat-label">Agents</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-budget">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-budget">0</span>
+                            <span class="stat-label">Budget Total</span>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Projets par Statut</h3>
+                        <div class="chart-content" id="chart-status">
+                            <div class="chart-bars" id="status-bars"></div>
+                            <div class="chart-legend" id="status-legend"></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Affectations</h3>
+                        <div class="chart-content" id="chart-type">
+                            <div class="chart-bars" id="type-bars"></div>
+                            <div class="chart-legend" id="type-legend"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- ==================== TYPEPROJET TAB ==================== -->
-        <div class="tab-content active" id="tab-typeprojet">
+        <div class="tab-content" id="tab-typeprojet">
             <div class="form-section">
                 <h2 id="typeprojet-form-title">Ajouter un Type de Projet</h2>
                 <form id="typeprojet-form">
@@ -114,10 +169,6 @@
                                 <th>Nom</th>
                                 <th>Prénom</th>
                                 <th>Fonction</th>
-                                <th>Email</th>
-                                <th>Téléphone</th>
-                                <th>Date Embauche</th>
-                                <th>Salaire</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -182,16 +233,14 @@
             <div class="table-section">
                 <h2>Liste des Projets</h2>
                 <div class="table-wrapper">
-                    <table>
+                    <table id="projet-table">
                         <thead>
                             <tr>
                                 <th>Nom</th>
                                 <th>Description</th>
                                 <th>Date Début</th>
                                 <th>Date Fin</th>
-                                <th>Budget</th>
                                 <th>Statut</th>
-                                <th>Type</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -255,6 +304,17 @@
                 </div>
                 <p id="travailler-no-data" class="no-data hidden">Aucune affectation trouvée.</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title"></h2>
+                <button type="button" class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
         </div>
     </div>
 

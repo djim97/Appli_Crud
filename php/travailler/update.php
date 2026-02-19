@@ -46,6 +46,24 @@ if (!recordExists($pdo, 'projet', 'idp', $idp)) {
     exit;
 }
 
+$stmtProjet = $pdo->prepare('SELECT statut FROM projet WHERE idp = :idp');
+$stmtProjet->execute([':idp' => (int) $idp]);
+$projet = $stmtProjet->fetch();
+if ($projet && strtolower(trim($projet['statut'])) === 'terminé') {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Impossible d\'affecter à un projet terminé']);
+    exit;
+}
+
+$stmtAgent = $pdo->prepare('SELECT date_embauche FROM agent WHERE idA = :idA');
+$stmtAgent->execute([':idA' => (int) $ida]);
+$agent = $stmtAgent->fetch();
+if ($agent && $dateaff < $agent['date_embauche']) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'La date d\'affectation ne peut pas être avant la date d\'embauche de l\'agent']);
+    exit;
+}
+
 try {
     $stmt = $pdo->prepare('UPDATE travailler SET role = :role, dateaff = :dateaff, ida = :ida, idp = :idp WHERE numt = :numt');
     $stmt->execute([

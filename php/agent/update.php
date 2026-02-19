@@ -50,6 +50,22 @@ if (!is_numeric($salaire) || (int)$salaire < 0) {
 }
 
 try {
+    $check = $pdo->prepare('SELECT idA FROM agent WHERE (email = :email OR telephone = :telephone) AND idA != :idA');
+    $check->execute([':email' => $email, ':telephone' => (int) $telephone, ':idA' => (int) $id]);
+    $existing = $check->fetch(PDO::FETCH_ASSOC);
+
+    if ($existing) {
+        http_response_code(409);
+        $checkEmail = $pdo->prepare('SELECT idA FROM agent WHERE email = :email AND idA != :idA');
+        $checkEmail->execute([':email' => $email, ':idA' => (int) $id]);
+        if ($checkEmail->fetch()) {
+            echo json_encode(['success' => false, 'error' => "L'email \"$email\" existe déjà"]);
+        } else {
+            echo json_encode(['success' => false, 'error' => "Le téléphone \"$telephone\" existe déjà"]);
+        }
+        exit;
+    }
+
     $stmt = $pdo->prepare('UPDATE agent SET nom = :nom, prenom = :prenom, fonction = :fonction, email = :email, telephone = :telephone, date_embauche = :date_embauche, salaire = :salaire WHERE idA = :idA');
     $stmt->execute([
         ':idA' => (int) $id,

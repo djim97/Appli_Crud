@@ -8,7 +8,9 @@ document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.add('active');
         document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
 
-        if (tab.dataset.tab === 'projet') {
+        if (tab.dataset.tab === 'dashboard') {
+            fetchDashboard();
+        } else if (tab.dataset.tab === 'projet') {
             loadTypeOptions();
         } else if (tab.dataset.tab === 'travailler') {
             loadAgentOptions();
@@ -43,6 +45,18 @@ function toDbDate(dateStr) {
     return dateStr;
 }
 
+// ==================== DEFAULT DATES ====================
+function getTodayFormatted() {
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return dd + '/' + mm + '/' + yyyy;
+}
+
+document.getElementById('agent-date_embauche').value = getTodayFormatted();
+document.getElementById('travailler-dateaff').value = getTodayFormatted();
+
 // ==================== GENERIC HELPERS ====================
 async function fetchJSON(url, options) {
     const res = await fetch(url, options);
@@ -63,6 +77,189 @@ function postJSON(url, data) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     });
+}
+
+// ==================== MODAL ====================
+function openModal(title, bodyHTML) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('detail-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('detail-modal').classList.add('hidden');
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('detail-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+});
+
+async function viewAgent(agent) {
+    const affs = await fetchJSON(`${API}/travailler/read.php`);
+    const agentAffs = affs.filter(a => String(a.ida) === String(agent.idA));
+
+    let html = '<div class="detail-grid">';
+    const fields = [
+        ['Nom', agent.nom], ['Prenom', agent.prenom], ['Fonction', agent.fonction],
+        ['Email', agent.email], ['Telephone', agent.telephone],
+        ['Date Embauche', formatDate(agent.date_embauche)], ['Salaire', formatBudget(agent.salaire)]
+    ];
+    fields.forEach(([label, val]) => {
+        html += `<div class="detail-label">${label}</div><div class="detail-value">${val ?? ''}</div>`;
+    });
+    html += '</div>';
+
+    html += '<div class="detail-section-title">Projets assign\u00e9s</div>';
+    if (agentAffs.length === 0) {
+        html += '<p class="detail-empty">Aucun projet assign\u00e9</p>';
+    } else {
+        html += '<table class="detail-list-table"><thead><tr><th>Projet</th><th>R\u00f4le</th><th>Date</th></tr></thead><tbody>';
+        agentAffs.forEach(a => {
+            html += `<tr><td>${a.nomp ?? ''}</td><td>${a.role ?? ''}</td><td>${formatDate(a.dateaff)}</td></tr>`;
+        });
+        html += '</tbody></table>';
+    }
+    openModal(agent.prenom + ' ' + agent.nom, html);
+}
+
+async function viewProjet(projet) {
+    const affs = await fetchJSON(`${API}/travailler/read.php`);
+    const projAffs = affs.filter(a => String(a.idp) === String(projet.idp));
+
+    let html = '<div class="detail-grid">';
+    const fields = [
+        ['Nom', projet.nomp], ['Description', projet.description],
+        ['Date D\u00e9but', formatDate(projet.dated)], ['Date Fin', formatDate(projet.datf)],
+        ['Budget', formatBudget(projet.budget)], ['Statut', projet.statut],
+        ['Type', projet.libelletype ?? '']
+    ];
+    fields.forEach(([label, val]) => {
+        html += `<div class="detail-label">${label}</div><div class="detail-value">${val ?? ''}</div>`;
+    });
+    html += '</div>';
+
+    html += '<div class="detail-section-title">Agents assign\u00e9s</div>';
+    if (projAffs.length === 0) {
+        html += '<p class="detail-empty">Aucun agent assign\u00e9</p>';
+    } else {
+        html += '<table class="detail-list-table"><thead><tr><th>Agent</th><th>R\u00f4le</th><th>Date</th></tr></thead><tbody>';
+        projAffs.forEach(a => {
+            html += `<tr><td>${(a.prenom ?? '') + ' ' + (a.nom ?? '')}</td><td>${a.role ?? ''}</td><td>${formatDate(a.dateaff)}</td></tr>`;
+        });
+        html += '</tbody></table>';
+    }
+    openModal(projet.nomp, html);
+}
+
+// ==================== DASHBOARD ====================
+async function fetchDashboard() {
+    try {
+        const stats = await fetchJSON(`${API}/dashboard/stats.php`);
+        renderDashboard(stats);
+    } catch (e) {
+        showMessage('Erreur de chargement du dashboard: ' + e.message, 'error');
+    }
+}
+
+function formatCFA(value) {
+    if (value == null || value === '') return '';
+    const num = Number(value);
+    if (isNaN(num)) return value;
+    return num.toLocaleString('fr-FR') + ' CFA';
+}
+
+function formatBudget(value) {
+    if (value >= 1000000) {
+        return (value / 1000000).toFixed(1) + 'M CFA';
+    } else if (value >= 1000) {
+        return (value / 1000).toFixed(1) + 'K CFA';
+    }
+    return Number(value).toLocaleString('fr-FR') + ' CFA';
+}
+
+function renderDashboard(stats) {
+    // Update stat cards
+    document.getElementById('stat-total-projets').textContent = stats.totalProjets;
+    document.getElementById('stat-total-agents').textContent = stats.totalAgents;
+    document.getElementById('stat-total-budget').textContent = formatBudget(stats.totalBudget);
+    // Render status chart
+    renderStatusChart(stats.projetsByStatus);
+
+    // Render affectations list
+    renderAffectationsList(stats.affectationsList);
+}
+
+function getStatusBarClass(statut) {
+    const normalized = statut.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (normalized.includes('en-cours')) return 'bar-en-cours';
+    if (normalized.includes('termin')) return 'bar-termine';
+    if (normalized.includes('attente')) return 'bar-en-attente';
+    if (normalized.includes('annul')) return 'bar-annule';
+    return 'bar-default';
+}
+
+function renderStatusChart(data) {
+    const container = document.getElementById('status-bars');
+    container.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="chart-no-data">Aucun projet</p>';
+        return;
+    }
+
+    const maxCount = Math.max(...data.map(d => parseInt(d.count)));
+
+    data.forEach(item => {
+        const percentage = maxCount > 0 ? (parseInt(item.count) / maxCount) * 100 : 0;
+        const barClass = getStatusBarClass(item.statut);
+
+        const barItem = document.createElement('div');
+        barItem.className = 'chart-bar-item';
+        barItem.innerHTML = `
+            <span class="chart-bar-label">${item.statut}</span>
+            <div class="chart-bar-container">
+                <div class="chart-bar ${barClass}" style="width: ${Math.max(percentage, 10)}%">
+                    <span class="chart-bar-value">${item.count}</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(barItem);
+    });
+}
+
+function renderAffectationsList(data) {
+    const container = document.getElementById('type-bars');
+    container.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="chart-no-data">Aucune affectation</p>';
+        return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'affectations-table';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Agent</th>
+                <th>Projet</th>
+                <th>R\u00f4le</th>
+            </tr>
+        </thead>
+    `;
+    const tbody = document.createElement('tbody');
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.nom} ${item.prenom}</td>
+            <td>${item.nomp}</td>
+            <td>${item.role || '-'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    container.appendChild(table);
 }
 
 // ==================== AGENT ====================
@@ -91,10 +288,9 @@ function renderAgents(agents) {
     agents.forEach(a => {
         const tr = document.createElement('tr');
 
-        const fields = ['nom', 'prenom', 'fonction', 'email', 'telephone', 'date_embauche', 'salaire'];
-        fields.forEach(f => {
+        ['nom', 'prenom', 'fonction'].forEach(f => {
             const td = document.createElement('td');
-            td.textContent = f === 'date_embauche' ? formatDate(a[f]) : (a[f] ?? '');
+            td.textContent = a[f] ?? '';
             tr.appendChild(td);
         });
 
@@ -109,6 +305,13 @@ function renderAgents(agents) {
         btnDelete.className = 'btn-delete';
         btnDelete.addEventListener('click', () => deleteAgent(a.idA));
 
+        const btnView = document.createElement('button');
+        btnView.textContent = 'Voir';
+        btnView.className = 'btn-view';
+        btnView.addEventListener('click', () => viewAgent(a));
+
+        tdActions.style.whiteSpace = 'nowrap';
+        tdActions.appendChild(btnView);
         tdActions.appendChild(btnEdit);
         tdActions.appendChild(btnDelete);
         tr.appendChild(tdActions);
@@ -130,6 +333,7 @@ function editAgent(agent) {
 function resetAgentForm() {
     document.getElementById('agent-form').reset();
     document.getElementById('agent-id').value = '';
+    document.getElementById('agent-date_embauche').value = getTodayFormatted();
     document.getElementById('agent-form-title').textContent = 'Ajouter un Agent';
     document.getElementById('agent-submit-btn').textContent = 'Ajouter';
     document.getElementById('agent-cancel-btn').classList.add('hidden');
@@ -225,6 +429,7 @@ function renderTypesProjets(types) {
         btnDelete.className = 'btn-delete';
         btnDelete.addEventListener('click', () => deleteTypeProjet(t.idtype));
 
+        tdActions.style.whiteSpace = 'nowrap';
         tdActions.appendChild(btnEdit);
         tdActions.appendChild(btnDelete);
         tr.appendChild(tdActions);
@@ -338,7 +543,7 @@ function renderProjets(projets) {
     projets.forEach(p => {
         const tr = document.createElement('tr');
 
-        ['nomp', 'description', 'dated', 'datf', 'budget', 'statut', 'libelletype'].forEach(f => {
+        ['nomp', 'description', 'dated', 'datf', 'statut'].forEach(f => {
             const td = document.createElement('td');
             td.textContent = (f === 'dated' || f === 'datf') ? formatDate(p[f]) : (p[f] ?? '');
             tr.appendChild(td);
@@ -355,6 +560,12 @@ function renderProjets(projets) {
         btnDelete.className = 'btn-delete';
         btnDelete.addEventListener('click', () => deleteProjet(p.idp));
 
+        const btnView = document.createElement('button');
+        btnView.textContent = 'Voir';
+        btnView.className = 'btn-view';
+        btnView.addEventListener('click', () => viewProjet(p));
+
+        tdActions.appendChild(btnView);
         tdActions.appendChild(btnEdit);
         tdActions.appendChild(btnDelete);
         tr.appendChild(tdActions);
@@ -534,6 +745,7 @@ function editAffectation(aff) {
 function resetAffectationForm() {
     document.getElementById('travailler-form').reset();
     document.getElementById('travailler-id').value = '';
+    document.getElementById('travailler-dateaff').value = getTodayFormatted();
     document.getElementById('travailler-form-title').textContent = 'Ajouter une Affectation';
     document.getElementById('travailler-submit-btn').textContent = 'Ajouter';
     document.getElementById('travailler-cancel-btn').classList.add('hidden');
@@ -584,6 +796,7 @@ document.getElementById('travailler-cancel-btn').addEventListener('click', reset
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
+    fetchDashboard();
     fetchAgents();
     fetchTypesProjets();
     fetchProjets();
