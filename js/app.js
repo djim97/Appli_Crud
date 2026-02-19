@@ -91,8 +91,6 @@ function renderDashboard(stats) {
     document.getElementById('stat-total-projets').textContent = stats.totalProjets;
     document.getElementById('stat-total-agents').textContent = stats.totalAgents;
     document.getElementById('stat-total-budget').textContent = formatBudget(stats.totalBudget);
-    document.getElementById('stat-total-types').textContent = stats.totalTypes;
-
     // Render status chart
     renderStatusChart(stats.projetsByStatus);
 
