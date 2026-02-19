@@ -79,6 +79,7 @@ function postJSON(url, data) {
     });
 }
 
+<<<<<<< HEAD
 // ==================== MODAL ====================
 function openModal(title, bodyHTML) {
     document.getElementById('modal-title').textContent = title;
@@ -152,6 +153,8 @@ async function viewProjet(projet) {
     openModal(projet.nomp, html);
 }
 
+=======
+>>>>>>> 2fb6b463adbbc3e1a8218b1b8a34d5ef5044bb35
 // ==================== DASHBOARD ====================
 async function fetchDashboard() {
     try {
@@ -162,6 +165,7 @@ async function fetchDashboard() {
     }
 }
 
+<<<<<<< HEAD
 function formatCFA(value) {
     if (value == null || value === '') return '';
     const num = Number(value);
@@ -176,6 +180,15 @@ function formatBudget(value) {
         return (value / 1000).toFixed(1) + 'K CFA';
     }
     return Number(value).toLocaleString('fr-FR') + ' CFA';
+=======
+function formatBudget(value) {
+    if (value >= 1000000) {
+        return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+        return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toLocaleString('fr-FR');
+>>>>>>> 2fb6b463adbbc3e1a8218b1b8a34d5ef5044bb35
 }
 
 function renderDashboard(stats) {
