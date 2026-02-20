@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+    echo json_encode(['success' => false, 'error' => 'Entrée JSON invalide']);
     exit;
 }
 
@@ -21,31 +21,31 @@ $salaire = $input['salaire'] ?? '';
 
 if (!$id || !is_numeric($id) || (int) $id <= 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Valid agent ID is required']);
+    echo json_encode(['success' => false, 'error' => 'Un ID d\'agent valide est requis']);
     exit;
 }
 
 if ($nom === '' || $prenom === '' || $fonction === '' || $email === '' || $telephone === '' || $dateEmbauche === '' || $salaire === '') {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'All fields are required']);
+    echo json_encode(['success' => false, 'error' => 'Tous les champs sont obligatoires']);
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid email format']);
+    echo json_encode(['success' => false, 'error' => 'Format d\'email invalide']);
     exit;
 }
 
 if (!isValidDate($dateEmbauche)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid hire date format (expected yyyy-mm-dd)']);
+    echo json_encode(['success' => false, 'error' => 'Format de date d\'embauche invalide (attendu aaaa-mm-jj)']);
     exit;
 }
 
 if (!is_numeric($salaire) || (int)$salaire < 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Salary must be a positive number']);
+    echo json_encode(['success' => false, 'error' => 'Le salaire doit être un nombre positif']);
     exit;
 }
 
@@ -80,11 +80,11 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'Agent not found']);
+        echo json_encode(['success' => false, 'error' => 'Agent introuvable']);
     } else {
         echo json_encode(['success' => true]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update agent']);
+    echo json_encode(['success' => false, 'error' => 'Échec de la mise à jour de l\'agent']);
 }

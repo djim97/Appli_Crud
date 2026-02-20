@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+    echo json_encode(['success' => false, 'error' => 'Entrée JSON invalide']);
     exit;
 }
 
@@ -21,43 +21,43 @@ $idtype = $input['idtype'] ?? '';
 
 if (!$id || !is_numeric($id) || (int) $id <= 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Valid project ID is required']);
+    echo json_encode(['success' => false, 'error' => 'Un ID de projet valide est requis']);
     exit;
 }
 
 if ($nomp === '' || $description === '' || $dated === '' || $datf === '' || $budget === '' || $statut === '' || $idtype === '') {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'All fields are required']);
+    echo json_encode(['success' => false, 'error' => 'Tous les champs sont obligatoires']);
     exit;
 }
 
 if (!isValidDate($dated)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid start date format (expected yyyy-mm-dd)']);
+    echo json_encode(['success' => false, 'error' => 'Format de date de début invalide (attendu aaaa-mm-jj)']);
     exit;
 }
 
 if (!isValidDate($datf)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid end date format (expected yyyy-mm-dd)']);
+    echo json_encode(['success' => false, 'error' => 'Format de date de fin invalide (attendu aaaa-mm-jj)']);
     exit;
 }
 
 if ($dated > $datf) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Start date must be before or equal to end date']);
+    echo json_encode(['success' => false, 'error' => 'La date de début doit être avant ou égale à la date de fin']);
     exit;
 }
 
 if (!is_numeric($budget) || (int)$budget < 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Budget must be a positive number']);
+    echo json_encode(['success' => false, 'error' => 'Le budget doit être un nombre positif']);
     exit;
 }
 
 if (!recordExists($pdo, 'typeprojet', 'idtype', $idtype)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Selected project type does not exist']);
+    echo json_encode(['success' => false, 'error' => 'Le type de projet sélectionné n.existe pas']);
     exit;
 }
 
@@ -76,11 +76,11 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'Project not found']);
+        echo json_encode(['success' => false, 'error' => 'Projet introuvable']);
     } else {
         echo json_encode(['success' => true]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update project']);
+    echo json_encode(['success' => false, 'error' => 'Échec de la mise à jour du projet']);
 }

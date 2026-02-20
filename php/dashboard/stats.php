@@ -48,5 +48,5 @@ try {
     ]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to fetch dashboard statistics']);
+    echo json_encode(['error' => 'Échec du chargement des statistiques']);
 }

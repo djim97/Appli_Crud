@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+    echo json_encode(['success' => false, 'error' => 'Entrée JSON invalide']);
     exit;
 }
 
@@ -15,7 +15,7 @@ $description = trim($input['descriptiont'] ?? '');
 
 if ($libelle === '' || $description === '') {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Libelle and description are required']);
+    echo json_encode(['success' => false, 'error' => 'Le libellé et la description sont obligatoires']);
     exit;
 }
 
@@ -29,5 +29,5 @@ try {
     echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create project type']);
+    echo json_encode(['success' => false, 'error' => 'Échec de la création du type de projet']);
 }

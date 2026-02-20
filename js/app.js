@@ -59,15 +59,22 @@ document.getElementById('travailler-dateaff').value = getTodayFormatted();
 
 // ==================== GENERIC HELPERS ====================
 async function fetchJSON(url, options) {
-    const res = await fetch(url, options);
-    const text = await res.text();
+    let text;
     try {
+        const res = await fetch(url, options);
+        text = await res.text();
         return JSON.parse(text);
     } catch (e) {
-        // InfinityFree bot protection returned HTML instead of JSON — retry once
+        // InfinityFree bot protection or error — retry once
         console.warn('Non-JSON response, retrying:', url);
-        const retry = await fetch(url, options);
-        return retry.json();
+        try {
+            const retry = await fetch(url, options);
+            const retryText = await retry.text();
+            return JSON.parse(retryText);
+        } catch (e2) {
+            console.error('Retry also failed for:', url);
+            return [];
+        }
     }
 }
 
@@ -156,7 +163,9 @@ async function viewProjet(projet) {
 async function fetchDashboard() {
     try {
         const stats = await fetchJSON(`${API}/dashboard/stats.php`);
-        renderDashboard(stats);
+        if (stats && typeof stats === 'object' && !Array.isArray(stats)) {
+            renderDashboard(stats);
+        }
     } catch (e) {
         showMessage('Erreur de chargement du dashboard: ' + e.message, 'error');
     }
@@ -268,7 +277,7 @@ const agentFields = ['nom', 'prenom', 'fonction', 'email', 'telephone', 'date_em
 async function fetchAgents() {
     try {
         const agents = await fetchJSON(`${API}/agent/read.php`);
-        renderAgents(agents);
+        renderAgents(Array.isArray(agents) ? agents : []);
     } catch (e) {
         showMessage('Erreur de chargement des agents: ' + e.message, 'error');
     }
@@ -390,8 +399,9 @@ const typFields = ['libelletype', 'descriptiont'];
 async function fetchTypesProjets() {
     try {
         const types = await fetchJSON(`${API}/typeprojet/read.php`);
-        renderTypesProjets(types);
-        return types;
+        const arr = Array.isArray(types) ? types : [];
+        renderTypesProjets(arr);
+        return arr;
     } catch (e) {
         showMessage('Erreur de chargement des types: ' + e.message, 'error');
         return [];
@@ -523,7 +533,7 @@ async function loadTypeOptions() {
 async function fetchProjets() {
     try {
         const projets = await fetchJSON(`${API}/projet/read.php`);
-        renderProjets(projets);
+        renderProjets(Array.isArray(projets) ? projets : []);
     } catch (e) {
         showMessage('Erreur de chargement des projets: ' + e.message, 'error');
     }
@@ -676,7 +686,7 @@ async function loadProjetOptions() {
 async function fetchAffectations() {
     try {
         const affs = await fetchJSON(`${API}/travailler/read.php`);
-        renderAffectations(affs);
+        renderAffectations(Array.isArray(affs) ? affs : []);
     } catch (e) {
         showMessage('Erreur de chargement des affectations: ' + e.message, 'error');
     }

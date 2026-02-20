@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+    echo json_encode(['success' => false, 'error' => 'Entrée JSON invalide']);
     exit;
 }
 
@@ -14,7 +14,7 @@ $id = $input['idtype'] ?? null;
 
 if (!$id || !is_numeric($id) || (int) $id <= 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Valid type ID is required']);
+    echo json_encode(['success' => false, 'error' => 'Un ID de type valide est requis']);
     exit;
 }
 
@@ -24,11 +24,11 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'Project type not found']);
+        echo json_encode(['success' => false, 'error' => 'Type de projet introuvable']);
     } else {
         echo json_encode(['success' => true]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to delete project type']);
+    echo json_encode(['success' => false, 'error' => 'Échec de la suppression du type de projet']);
 }

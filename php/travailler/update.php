@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+    echo json_encode(['success' => false, 'error' => 'Entrée JSON invalide']);
     exit;
 }
 
@@ -18,31 +18,31 @@ $idp = $input['idp'] ?? '';
 
 if (!$id || !is_numeric($id) || (int) $id <= 0) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Valid assignment ID is required']);
+    echo json_encode(['success' => false, 'error' => 'Un ID d.affectation valide est requis']);
     exit;
 }
 
 if ($role === '' || $dateaff === '' || $ida === '' || $idp === '') {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'All fields are required (role, dateaff, ida, idp)']);
+    echo json_encode(['success' => false, 'error' => 'Tous les champs sont obligatoires (rôle, date affectation, agent, projet)']);
     exit;
 }
 
 if (!isValidDate($dateaff)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid assignment date format (expected yyyy-mm-dd)']);
+    echo json_encode(['success' => false, 'error' => 'Format de date d.affectation invalide (attendu aaaa-mm-jj)']);
     exit;
 }
 
 if (!recordExists($pdo, 'agent', 'idA', $ida)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Selected agent does not exist']);
+    echo json_encode(['success' => false, 'error' => 'L.agent sélectionné n.existe pas']);
     exit;
 }
 
 if (!recordExists($pdo, 'projet', 'idp', $idp)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Selected project does not exist']);
+    echo json_encode(['success' => false, 'error' => 'Le projet sélectionné n.existe pas']);
     exit;
 }
 
@@ -76,11 +76,11 @@ try {
 
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'Assignment not found']);
+        echo json_encode(['success' => false, 'error' => 'Affectation introuvable']);
     } else {
         echo json_encode(['success' => true]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update assignment']);
+    echo json_encode(['success' => false, 'error' => 'Échec de la mise à jour de l.affectation']);
 }

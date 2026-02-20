@@ -6,7 +6,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+    echo json_encode(['success' => false, 'error' => 'Entrée JSON invalide']);
     exit;
 }
 
@@ -17,25 +17,25 @@ $idp = $input['idp'] ?? '';
 
 if ($role === '' || $dateaff === '' || $ida === '' || $idp === '') {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'All fields are required (role, dateaff, ida, idp)']);
+    echo json_encode(['success' => false, 'error' => 'Tous les champs sont obligatoires (rôle, date affectation, agent, projet)']);
     exit;
 }
 
 if (!isValidDate($dateaff)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid assignment date format (expected yyyy-mm-dd)']);
+    echo json_encode(['success' => false, 'error' => 'Format de date d.affectation invalide (attendu aaaa-mm-jj)']);
     exit;
 }
 
 if (!recordExists($pdo, 'agent', 'idA', $ida)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Selected agent does not exist']);
+    echo json_encode(['success' => false, 'error' => 'L.agent sélectionné n.existe pas']);
     exit;
 }
 
 if (!recordExists($pdo, 'projet', 'idp', $idp)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Selected project does not exist']);
+    echo json_encode(['success' => false, 'error' => 'Le projet sélectionné n.existe pas']);
     exit;
 }
 
@@ -69,5 +69,5 @@ try {
     echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create assignment']);
+    echo json_encode(['success' => false, 'error' => 'Échec de la création de l.affectation']);
 }

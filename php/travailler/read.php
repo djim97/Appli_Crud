@@ -16,5 +16,5 @@ try {
     echo json_encode($assignments);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to fetch assignments']);
+    echo json_encode(['error' => 'Échec du chargement des affectations']);
 }

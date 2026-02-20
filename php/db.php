@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // ==================== DATABASE ====================
 $host = '127.0.0.1';
-$dbname = 'crud_app';
+$dbname = 'crud';
 $username = 'root';
 $password = '';
 
@@ -27,7 +27,7 @@ try {
     );
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed']);
+    echo json_encode(['error' => 'Échec de la connexion à la base de données']);
     exit;
 }
 
